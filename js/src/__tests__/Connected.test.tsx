@@ -4,10 +4,18 @@ import userEvent from '@testing-library/user-event'
 
 import { ConnectedDialog, GattCharacteristicMode, GattServiceDescription } from '../Connected'
 
+const gattServiceDescription: GattServiceDescription = {
+    uuid: "My-service-uuid",
+    characteristics: [{
+        uuid: "My-characteristic-uuid-1",
+        modes: [GattCharacteristicMode.Read, GattCharacteristicMode.Notify]
+    }]
+}
+
 describe("The connected dialog", () => {
     describe("Connection Information", () => {
         it("displays the ID of the connected device", async () => {
-            render(<ConnectedDialog deviceID={"LEGO Robot"} gattServices={[]} doSubscribeCallback={() => { }} messages={[]} />)
+            render(<ConnectedDialog deviceID={"LEGO Robot"} gattService={gattServiceDescription} doSubscribeCallback={() => { }} messages={[]} />)
 
             const notification = await screen.findByText("Connected to: LEGO Robot")
             expect(notification).toBeInTheDocument()
@@ -16,14 +24,14 @@ describe("The connected dialog", () => {
 
     describe("Services Information Table", () => {
         it("has a table", async () => {
-            render(<ConnectedDialog deviceID={"LEGO Robot"} gattServices={[]} doSubscribeCallback={() => { }} messages={[]} />)
+            render(<ConnectedDialog deviceID={"LEGO Robot"} gattService={gattServiceDescription} doSubscribeCallback={() => { }} messages={[]} />)
 
             const table = await screen.findByRole("table")
             expect(table).toBeInTheDocument()
         })
 
         it("has Service UUID table header", async () => {
-            render(<ConnectedDialog deviceID={"LEGO Robot"} gattServices={[]} doSubscribeCallback={() => { }} messages={[]} />)
+            render(<ConnectedDialog deviceID={"LEGO Robot"} gattService={gattServiceDescription} doSubscribeCallback={() => { }} messages={[]} />)
             const table = await screen.findByRole('table')
             const serviceHeader = await within(table).findByText("Service")
 
@@ -31,7 +39,7 @@ describe("The connected dialog", () => {
         })
 
         it("has Characteristic UUID table header", async () => {
-            render(<ConnectedDialog deviceID={"LEGO Robot"} gattServices={[]} doSubscribeCallback={() => { }} messages={[]} />)
+            render(<ConnectedDialog deviceID={"LEGO Robot"} gattService={gattServiceDescription} doSubscribeCallback={() => { }} messages={[]} />)
             const table = await screen.findByRole('table')
             const serviceHeader = await within(table).findByText("Characteristic")
 
@@ -47,7 +55,7 @@ describe("The connected dialog", () => {
                 }]
             }
 
-            render(<ConnectedDialog messages={[]} deviceID={"LEGO Robot"} gattServices={[gattServiceDescription]} doSubscribeCallback={() => { }} />)
+            render(<ConnectedDialog messages={[]} deviceID={"LEGO Robot"} gattService={gattServiceDescription} doSubscribeCallback={() => { }} />)
             const table = await screen.findAllByRole('table')
             const rows = await within(table[0]).findAllByRole('row')
 
@@ -63,22 +71,16 @@ describe("The connected dialog", () => {
                 }]
             }
 
-            render(<ConnectedDialog deviceID={"LEGO Robot"} gattServices={[gattServiceDescription]} doSubscribeCallback={() => { }} messages={[]} />)
+            render(<ConnectedDialog deviceID={"LEGO Robot"} gattService={gattServiceDescription} doSubscribeCallback={() => { }} messages={[]} />)
 
             await screen.getByText("My-service-uuid")
             await screen.getByText("My-characteristic-uuid-1")
         })
 
         it('renders the characteristic modes', async () => {
-            const gattServiceDescription: GattServiceDescription = {
-                uuid: "My-service-uuid",
-                characteristics: [{
-                    uuid: "My-characteristic-uuid-1",
-                    modes: [GattCharacteristicMode.Read, GattCharacteristicMode.Notify]
-                }]
-            }
 
-            render(<ConnectedDialog deviceID={"LEGO Robot"} gattServices={[gattServiceDescription]} doSubscribeCallback={() => { }} messages={[]} />)
+
+            render(<ConnectedDialog deviceID={"LEGO Robot"} gattService={gattServiceDescription} doSubscribeCallback={() => { }} messages={[]} />)
 
             await screen.getByText("Read, Notify")
         })
@@ -93,7 +95,7 @@ describe("The connected dialog", () => {
                 }]
             }
 
-            render(<ConnectedDialog deviceID={"LEGO Robot"} gattServices={[gattServiceDescription]} doSubscribeCallback={() => { }} messages={[]} />)
+            render(<ConnectedDialog deviceID={"LEGO Robot"} gattService={gattServiceDescription} doSubscribeCallback={() => { }} messages={[]} />)
 
             const button = await screen.getByRole("button")
 
@@ -111,7 +113,7 @@ describe("The connected dialog", () => {
                 }]
             }
 
-            render(<ConnectedDialog doSubscribeCallback={mockCallback} deviceID={"LEGO Robot"} gattServices={[gattServiceDescription]} messages={[]} />)
+            render(<ConnectedDialog doSubscribeCallback={mockCallback} deviceID={"LEGO Robot"} gattService={gattServiceDescription} messages={[]} />)
 
             const subscribeButton = await screen.findByText("Connect")
             await user.click(subscribeButton)
@@ -132,7 +134,7 @@ describe("The connected dialog", () => {
                 }]
             }
 
-            render(<ConnectedDialog doSubscribeCallback={mockCallback} deviceID={"LEGO Robot"} gattServices={[gattServiceDescription]} messages={[]} />)
+            render(<ConnectedDialog doSubscribeCallback={mockCallback} deviceID={"LEGO Robot"} gattService={gattServiceDescription} messages={[]} />)
 
             const subscribeButton = await screen.findByText("Connect")
             await user.click(subscribeButton)

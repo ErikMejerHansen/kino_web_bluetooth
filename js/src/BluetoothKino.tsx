@@ -56,7 +56,7 @@ const lwpToRobotQueue = new Queue()
 export const BluetoothKino = ({ gattServiceUUID, serviceUUIDInputChangeCallback, messageReceivedCallback, kinoCtx }: BluetoothKinoProps) => {
     const [isDeviceConnected, setIsDeviceconnected] = useState<boolean>(false)
     const [deviceName, setDeviceName] = useState<string>("")
-    const [gattServices, setGattServices] = useState<GattServiceDescription[]>([])
+    const [gattService, setGattService] = useState<GattServiceDescription>()
     const [connectedService, setConnectedService] = useState<any>()
     const [messages, setMessages] = useState<Message[]>([])
     const [eventHandlersSet, setEventHandlersSet] = useState<boolean>(false)
@@ -65,7 +65,6 @@ export const BluetoothKino = ({ gattServiceUUID, serviceUUIDInputChangeCallback,
     const writeToSubscribedCharacterisric = (message: Message) => {
         // Don't do this... but I ran out of time...😱
         setSubscribedCharacteristic((characteristic: any) => {
-            console.log("writing", message.data)
             lwpToRobotQueue.enqueue(() => { return characteristic.writeValueWithoutResponse(message.data[1]) })
             return characteristic
         })
@@ -96,7 +95,7 @@ export const BluetoothKino = ({ gattServiceUUID, serviceUUIDInputChangeCallback,
                 console.log(message)
                 return [...previousMessages, message]
             })
-            // TODO: Potential null pointer for the clients that are not connected to the device?
+            // TODO: This throws an error on the clients that are not connected to the device?
             writeToSubscribedCharacterisric(message)
         }, []);
 
@@ -114,7 +113,7 @@ export const BluetoothKino = ({ gattServiceUUID, serviceUUIDInputChangeCallback,
 
         kinoCtx.handleEvent("device_connected", (payload: any) => {
             console.log("Device connected", payload)
-            setGattServices(payload)
+            setGattService(payload)
             setIsDeviceconnected(true)
         })
     })
@@ -137,7 +136,7 @@ export const BluetoothKino = ({ gattServiceUUID, serviceUUIDInputChangeCallback,
                 const uuid = serviceUUID ? serviceUUID : ""
                 const serviceDescription = buildGattServiceDescription(uuid, characteristics)
 
-                console.log("sending services", serviceDescription)
+                console.log("sending services", [serviceDescription])
                 // Tell the backend that a device has sucessfully connected
                 kinoCtx.pushEvent("device_connected", serviceDescription)
 
@@ -169,7 +168,7 @@ export const BluetoothKino = ({ gattServiceUUID, serviceUUIDInputChangeCallback,
         <>
             {
                 isDeviceConnected
-                    ? <ConnectedDialog deviceID={deviceName} doSubscribeCallback={subscribe} gattServices={gattServices} messages={messages}></ConnectedDialog>
+                    ? <ConnectedDialog deviceID={deviceName} doSubscribeCallback={subscribe} gattService={gattService} messages={messages}></ConnectedDialog>
                     : <ConnectionDialog doScanCallback={scan} initialServiceUUID={gattServiceUUID} serviceUUIDChangeCallback={serviceUUIDInputChangeCallback}></ConnectionDialog>
             }
         </>

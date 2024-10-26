@@ -3,7 +3,7 @@ import { Message, MessageStream } from "./MessageStream"
 type subscribeCallback = (characteristicUUID: string) => void
 interface ConnectedDialogProps {
     deviceID?: string
-    gattServices: GattServiceDescription[]
+    gattService?: GattServiceDescription
     doSubscribeCallback: subscribeCallback,
     messages: Message[]
 }
@@ -23,9 +23,6 @@ export interface GattCharacteristicDescription {
     uuid: string
     modes: GattCharacteristicMode[]
 }
-
-const gattServicesRows = (services: GattServiceDescription[], callback: subscribeCallback) =>
-    services.flatMap((service) => gattServiceTableRows(service, callback))
 
 const gattServiceTableRows = (service: GattServiceDescription, callback: subscribeCallback) =>
     service.characteristics.map((characteristic) => gattCharacteristicTableRow(service.uuid, characteristic, callback))
@@ -49,7 +46,7 @@ const gattCharacteristicTableRow = (serviceUUID: string, characteristic: GattCha
     </tr >
 
 
-export const ConnectedDialog = ({ deviceID, gattServices, doSubscribeCallback, messages }: ConnectedDialogProps) => {
+export const ConnectedDialog = ({ deviceID, gattService, doSubscribeCallback, messages }: ConnectedDialogProps) => {
     return (
         <>
             <div className="info-box">
@@ -76,14 +73,14 @@ export const ConnectedDialog = ({ deviceID, gattServices, doSubscribeCallback, m
                         </tr>
                     </thead>
                     <tbody>
-                        {gattServicesRows(gattServices, doSubscribeCallback)}
+                        {gattServiceTableRows(gattService!, doSubscribeCallback)}
                     </tbody>
                 </table>
             </div>
             {
                 messages.length > 0 &&
                 < div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-                    <MessageStream gattCharacteristicUUID={gattServices[0].uuid} messages={messages}></MessageStream>
+                    <MessageStream gattCharacteristicUUID={gattService!.uuid} messages={messages}></MessageStream>
                 </div >
             }
 

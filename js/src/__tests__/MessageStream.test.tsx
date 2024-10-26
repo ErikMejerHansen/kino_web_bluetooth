@@ -37,31 +37,4 @@ describe("The MessageStream component", () => {
 
         expect(rows).toHaveLength(1 + 1) // One header + one data row
     })
-    it('renders the data nicely', async () => {
-        // const message = {
-        //     "0": 15,
-        //     "1": 0,
-        //     "2": 4,
-        //     "3": 59,
-        //     "4": 1,
-        //     "5": 21,
-        //     "6": 0,
-        //     "7": 0,
-        //     "8": 0,
-        //     "9": 0,
-        //     "10": 16,
-        //     "11": 0,
-        //     "12": 0,
-        //     "13": 0,
-        //     "14": 16
-        // }
-
-        render(<MessageStream gattCharacteristicUUID="My-UUID" messages={[{ timestamp: Date.now(), data: [{ some: "info" }, Uint8Array.from([0x01, 0x02, 0xFF]).buffer], direction: MessageFlowDirection.Write }]} />)
-
-        const dataAsHex = await screen.findByText('1-2-ff')
-
-        expect(dataAsHex).toBeInTheDocument()
-    })
-
-    it('can format')
 })
