@@ -1,0 +1,109 @@
+# Robot tests
+
+```elixir
+Mix.install([
+  {:kino_web_bluetooth,
+   path: "/Users/erik.m.hansen/Development/private/kino_web_bluetooth"},
+  {:kino_explorer, "~> 0.1.20"},
+  {:kino_db, "~> 0.2.10"},
+  {:kino_vega_lite, "~> 0.1.11"}
+])
+```
+
+## Section
+
+<!-- livebook:{"attrs":"eyJnYXR0X3NlcnZpY2VfdXVpZCI6IjAwMDAxNjIzLTEyMTItZWZkZS0xNjIzLTc4NWZlYWJjZDEyMyJ9","chunks":null,"kind":"Elixir.KinoWebBluetooth","livebook_object":"smart_cell"} -->
+
+```elixir
+service_uuid = "00001623-1212-efde-1623-785feabcd123"
+```
+
+```elixir
+start_speed = fn port, speed -> 
+<<
+  8, #lengh
+  0x00, #hub
+  0x81, # Port output
+  # ---
+  port, # port
+  0b0000_0000, # statup and completion
+  0x07, # Start SPEED, sub-command
+  speed, # Speed
+  0x64, # Max power
+  0x00 # No accel
+>>
+end
+
+port_a = 0x00
+port_b = 0x01
+port_c = 0x02
+port_d = 0x03
+
+# CCW
+KinoWebBluetooth.BluetoothWriter.send_message(start_speed.(port_a, 10))
+KinoWebBluetooth.BluetoothWriter.send_message(start_speed.(port_c, 10))
+KinoWebBluetooth.BluetoothWriter.send_message(start_speed.(port_b, 10))
+KinoWebBluetooth.BluetoothWriter.send_message(start_speed.(port_d, 10))
+
+# start_motor_for_time.(0x00, 0xFF)
+
+```
+
+```elixir
+# Stop
+KinoWebBluetooth.BluetoothWriter.send_message(start_speed.(port_a, 0))
+KinoWebBluetooth.BluetoothWriter.send_message(start_speed.(port_c, 0))
+
+KinoWebBluetooth.BluetoothWriter.send_message(start_speed.(port_b, 0))
+KinoWebBluetooth.BluetoothWriter.send_message(start_speed.(port_d, 0))
+```
+
+```elixir
+# CCW
+speed = 40
+KinoWebBluetooth.BluetoothWriter.send_message(start_speed.(port_a, speed))
+KinoWebBluetooth.BluetoothWriter.send_message(start_speed.(port_c, speed))
+
+KinoWebBluetooth.BluetoothWriter.send_message(start_speed.(port_b, speed))
+KinoWebBluetooth.BluetoothWriter.send_message(start_speed.(port_d, speed))
+```
+
+```elixir
+# CW
+KinoWebBluetooth.BluetoothWriter.send_message(start_speed.(port_a, -speed))
+KinoWebBluetooth.BluetoothWriter.send_message(start_speed.(port_c, -speed))
+
+KinoWebBluetooth.BluetoothWriter.send_message(start_speed.(port_b, -speed))
+KinoWebBluetooth.BluetoothWriter.send_message(start_speed.(port_d, -speed))
+```
+
+```elixir
+# Back
+KinoWebBluetooth.BluetoothWriter.send_message(start_speed.(port_a, speed))
+KinoWebBluetooth.BluetoothWriter.send_message(start_speed.(port_c, -speed))
+
+KinoWebBluetooth.BluetoothWriter.send_message(start_speed.(port_b, speed))
+KinoWebBluetooth.BluetoothWriter.send_message(start_speed.(port_d, -speed))
+```
+
+```elixir
+# Forwards
+KinoWebBluetooth.BluetoothWriter.send_message(start_speed.(port_a, speed))
+KinoWebBluetooth.BluetoothWriter.send_message(start_speed.(port_c, speed))
+
+KinoWebBluetooth.BluetoothWriter.send_message(start_speed.(port_b, -speed))
+KinoWebBluetooth.BluetoothWriter.send_message(start_speed.(port_d, -speed))
+```
+
+```elixir
+# ?
+KinoWebBluetooth.BluetoothWriter.send_message(start_speed.(port_a, 20))
+KinoWebBluetooth.BluetoothWriter.send_message(start_speed.(port_c, -20))
+
+KinoWebBluetooth.BluetoothWriter.send_message(start_speed.(port_b, -20))
+KinoWebBluetooth.BluetoothWriter.send_message(start_speed.(port_d, 20))
+```
+
+```elixir
+KinoWebBluetooth.MessageStore.messages()
+```

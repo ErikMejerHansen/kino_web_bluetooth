@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ["./src/**/*.{ts,,tsx}"],
+  content: ["./src/**/*.{ts,,tsx}", "index.html"],
   // From https://github.com/livebook-dev/kino-bundler/blob/main/tailwind.config.js
   theme: {
     fontFamily: {

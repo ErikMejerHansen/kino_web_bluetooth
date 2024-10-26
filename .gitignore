@@ -24,5 +24,3 @@ kino_web_bluetooth-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
-
-/node_modules/

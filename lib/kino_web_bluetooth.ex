@@ -1,11 +1,13 @@
 defmodule KinoWebBluetooth do
-  alias KinoWebBluetooth.ValueStore
+  alias KinoWebBluetooth.BluetoothWriter
+  alias KinoWebBluetooth.MessageStore
   require Logger
+
   # Bring in the behaviour and define the text on the Smart Cell button
   use Kino.SmartCell, name: "Web Bluetooth"
 
   # Use Kino.JS as set the assets path to "assets".
-  # Source files placed in the "js" folder will be built and outputted into the "assets" folder via esbuild
+  # Source files placed in the "js" folder will be built and outputted into the "assets" folder via vite
   use Kino.JS, assets_path: "assets"
   use Kino.JS.Live
 
@@ -15,28 +17,35 @@ defmodule KinoWebBluetooth do
     # Init gets called when the smart-cell is first initialized
 
     # We need to populate the ctx with the expected assigns
-    ctx = assign(ctx, gatt_service_uuid: attrs["gatt_service_uuid"] || "")
-    ctx = assign(ctx, gatt_characteristic_uuid: attrs["gatt_characteristic_uuid"] || "")
-    ctx = assign(ctx, variable_name: attrs["variable_name"] || "")
+    ctx =
+      assign(ctx, gatt_service_uuid: attrs["gatt_service_uuid"] || "", device_connected: false)
 
-    # Start the GenServer we'll use for holding the incomming values
-    {:ok, pid} = GenServer.start(ValueStore, [])
+    # Start the Agent we'll use for holding the incomming values
+    MessageStore.start_link([[]])
 
-    # Eh.. not great. PIDs are not serializable and keeping a PID in atters seems... not good
-    # (but is does allow for showcasing `to_source`)
-    ctx = assign(ctx, genserver_pid: :erlang.pid_to_list(pid))
+    # Start the GenServer we'll use for sending messages to the bluetooth device (via the browser)
+    {:ok, _} =
+      GenServer.start_link(
+        BluetoothWriter,
+        fn event, payload ->
+          broadcast_message = {:binary, %{value: "write"}, payload}
+          broadcast_event(ctx, event, broadcast_message)
+        end,
+        name: BluetoothWriter
+      )
 
     {:ok, ctx}
   end
 
   @impl Kino.JS.Live
   def handle_connect(ctx) do
+    # Gets called everytime the another browser window opens the Livebook
+
     # Data returned get passed to JS init function, so that we can restore the saved state in the UI
     {:ok,
      %{
        "gattServiceUUID" => ctx.assigns.gatt_service_uuid,
-       "gattCharacteristicUUID" => ctx.assigns.gatt_characteristic_uuid,
-       "variableName" => ctx.assigns.variable_name
+       "device_connected" => ctx.assigns.device_connected
      }, ctx}
   end
 
@@ -45,21 +54,16 @@ defmodule KinoWebBluetooth do
     # We need to be able to serialise the state of the smart cell in order to save it
     # The serialised state needs to be representable as JSON
     # The values gets saved as base64 encoded JSON in the markdown file
-
     %{
-      "gatt_service_uuid" => ctx.assigns.gatt_service_uuid,
-      "gatt_characteristic_uuid" => ctx.assigns.gatt_characteristic_uuid,
-      "variable_name" => ctx.assigns.variable_name,
-      "genserver_pid" => ctx.assigns.genserver_pid
+      "gatt_service_uuid" => ctx.assigns.gatt_service_uuid
     }
   end
 
   @impl Kino.SmartCell
   def to_source(attrs) do
-    # Called when attrs change
+    # Called when attrs change - allows you to generate code based on the attrs
     quote do
-      unquote(quoted_var(attrs["variable_name"])) =
-        unquote(attrs["genserver_pid"]) |> :erlang.list_to_pid()
+      unquote(quoted_var("service_uuid")) = unquote(attrs["gatt_service_uuid"])
     end
     |> Kino.SmartCell.quoted_to_string()
   end
@@ -80,23 +84,23 @@ defmodule KinoWebBluetooth do
     {:noreply, assign(ctx, gatt_service_uuid: gatt_service_uuid)}
   end
 
-  @impl Kino.JS.Live
-  def handle_event("update_gatt_characteristic", gatt_characteristic_uuid, ctx) do
-    {:noreply, assign(ctx, gatt_characteristic_uuid: gatt_characteristic_uuid)}
+  def handle_event("device_connected", payload, ctx) do
+    IO.inspect(payload)
+    broadcast_event(ctx, "device_connected", payload)
+
+    # TODO: This will need to have the payload as well so that new connections can get the correct state
+    {:noreply, assign(ctx, device_connected: true)}
   end
 
   @impl Kino.JS.Live
-  def handle_event("update_variable_name", variable_name, ctx) do
-    {:noreply, assign(ctx, variable_name: variable_name)}
-  end
+  def handle_event("value_update", {:binary, _info, update}, ctx) do
+    # Add the message to our MessageStore so that we can play with it in Elixir
+    MessageStore.add_message(update)
 
-  @impl Kino.JS.Live
-  def handle_event("value_update", update, ctx) do
-    # Drop a few bytes off the front
-    [_length, _hub_id, _message_type, _port | rest] = Map.values(update)
-
-    # pid = :erlang.list_to_pid(ctx.assigns.genserver_pid)
-    # ValueStore.push_value(pid, rest)
+    # And let all connected clients know that a new message as appeared
+    # use the {:binary, } construct to make sure the data is recieved as a Buffer on the client side
+    payload = {:binary, %{value: "message"}, update}
+    broadcast_event(ctx, "value_update", payload)
 
     {:noreply, ctx}
   end

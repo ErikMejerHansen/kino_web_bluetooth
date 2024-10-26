@@ -1,0 +1,264 @@
+<!-- livebook:{"file_entries":[{"name":"client-server.png","type":"attachment"},{"name":"code_notebook.png","type":"attachment"},{"name":"hiera.png","type":"attachment"}]} -->
+
+# Beam Bites: Create Your Own Livebook Extensions
+
+```elixir
+Mix.install([
+  {:kino_web_bluetooth,
+   path: "/Users/erik.m.hansen/Development/private/kino_web_bluetooth"},
+  {:vega_lite, "~> 0.1.6"},
+  {:kino_vega_lite, "~> 0.1.11"}
+])
+```
+
+## Livebook
+
+<!-- livebook:{"attrs":"e30","chunks":null,"kind":"Elixir.KinoWebBluetooth","livebook_object":"smart_cell"} -->
+
+```elixir
+service_uuid = ""
+```
+
+### "[...] code notebooks" - the docs
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/code_notebook.png)
+
+## Interactive Notebooks with Kino
+
+### "[...] **interactive** and collaborative code notebooks" - the docs
+
+```elixir
+form =
+  Kino.Control.form(
+    [
+      name: Kino.Input.text("Name"),
+      message: Kino.Input.textarea("Message")
+    ],
+    submit: "Send"
+  )
+```
+
+```elixir
+Kino.listen(form, fn event ->
+  %{message: message, name: name} = event.data
+  IO.puts("Message: #{message} from #{name}")
+end)
+```
+
+### There is a lot here
+
+There are already a lot of built-in Kinos:
+
+* Kino.Audio
+* Kino.DataTabel
+* Kino.Download
+* Kino.ETS
+* ...
+  *
+
+## It's a Web Application: Leveraging the Browser
+
+### "a web application for writing interactive and collaborative code notebooks" - the docs
+
+<!-- livebook:{"break_markdown":true} -->
+
+Which implies that we can leverage all the things a browser can do in our Livebook 🎉
+
+<!-- livebook:{"break_markdown":true} -->
+
+### Kino.JS
+
+> Allows for defining custom JavaScript powered kinos.
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule KinoDocs.HTML do
+  use Kino.JS
+
+  def new(html) do
+    Kino.JS.new(__MODULE__, html)
+  end
+
+  asset "main.js" do
+    """
+    export function init(ctx, html) {
+      ctx.root.innerHTML = html;
+    }
+    """
+  end
+end
+```
+
+It's kinda like having JS in your Markdown
+
+### Kino.JS.Live
+
+> Introduces state and event-driven capabilities to JavaScript powered kinos.
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule KinoDocs.LiveHTML do
+  use Kino.JS
+  use Kino.JS.Live
+
+  def new(html) do
+    Kino.JS.Live.new(__MODULE__, html)
+  end
+
+  def replace(kino, html) do
+    Kino.JS.Live.cast(kino, {:replace, html})
+  end
+
+  @impl true
+  def init(html, ctx) do
+    {:ok, assign(ctx, html: html)}
+  end
+
+  @impl true
+  def handle_connect(ctx) do
+    {:ok, ctx.assigns.html, ctx}
+  end
+
+  @impl true
+  def handle_cast({:replace, html}, ctx) do
+    broadcast_event(ctx, "replace", html)
+    {:noreply, assign(ctx, html: html)}
+  end
+
+  asset "main.js" do
+    """
+    export function init(ctx, html) {
+      ctx.root.innerHTML = html;
+
+      ctx.handleEvent("replace", (html) => {
+        ctx.root.innerHTML = html;
+      });
+    }
+    """
+  end
+end
+```
+
+## Kino.SmartCells: The Full JS / Elixir Integration
+
+### A Hierachy of Capabilities
+
+![](files/hiera.png)
+
+`Kino.SmartCell` builds on top of `Kino.JS.Live` that builds on top of `Kino.JS`
+
+<!-- livebook:{"break_markdown":true} -->
+
+### Client/Server relationship
+
+![](files/client-server.png)
+
+## Example: A Web Bluetooth Smart Cell
+
+### Goal: Interact with a Bluetooth device in Elixir code blocks - via the Web Bluetooth
+
+The overall intent is to have something that works a bit like this:
+
+```mermaid
+sequenceDiagram
+    actor user as User
+    participant robot as LEGO Robot
+    participant client as JavaScript UI (Client)
+    participant server as Elixir Smart Cell (Server)
+    participant elixir as Elixir Code Block
+
+    user ->> client: Enter device info
+    client ->> robot: Connect via Web Bluetooth
+    loop Incomming Data
+      robot ->> client: Send data
+      client ->> server: Send data
+    end
+
+    elixir ->> server: Get Data...
+    elixir ->> elixir: ... and have fun!
+```
+
+## Demo first!
+
+<!-- livebook:{"attrs":"eyJnYXR0X3NlcnZpY2VfdXVpZCI6IjAwMDAxNjIzLTEyMTItZWZkZS0xNjIzLTc4NWZlYWJjZDEyMyJ9","chunks":null,"kind":"Elixir.KinoWebBluetooth","livebook_object":"smart_cell"} -->
+
+```elixir
+service_uuid = "00001623-1212-efde-1623-785feabcd123"
+```
+
+```elixir
+KinoWebBluetooth.BluetoothWriter.send_message([  
+                0x10,
+                0x00,
+                0x41,
+                99,
+                0x00, # Mode
+                0x06, # Delta
+                0x00, # Delta 
+                0x00, # Delta 
+                0x00, # Delta 
+                0x01  # Enable notifications
+            ])
+```
+
+```elixir
+alias VegaLite, as: Vl
+
+sensor_readings = KinoWebBluetooth.MessageStore.messages()
+|> Enum.filter(&(Enum.count(&1) == 10)) # Filter out non-sensor events
+|> Enum.map(fn map-> [
+  # map["0"], - Ignore lenth byte
+  # map["1"], - Ignore hub id
+  # map["2"], - Ignore message type (We should be filtering on this)
+  map["3"], 
+  map["4"], 
+  map["5"],
+  map["6"], 
+  map["7"], 
+  map["8"], 
+  map["9"]
+] end)
+|> Enum.with_index()
+|> Enum.map(fn({[a, b, c, d, e, f, g], index}) -> 
+  %{
+    "index" => index,
+    "a" => a, 
+    "b" => b, 
+    "c" => c, 
+    "d" => d, 
+    "e" => e, 
+    "f" => f,
+    "g" => g
+  } 
+  end)
+
+Vl.new(width: 10800, height: 600) #Plot the data!
+|> Vl.data_from_values(sensor_readings)
+|> Vl.mark(:line)
+|> Vl.encode_field(:x, "index", type: :nominal, axis: [])
+|> Vl.encode_field(:y, "b", type: :quantitative)
+```
+
+## Code Walktrough!
+
+## Development Flow - Tips and Tricks
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+Mix.install([
+  {:kino_web_bluetooth,
+   path: "/Users/erik.m.hansen/Development/private/kino_web_bluetooth"}, # <--- Local dependency
+  {:kino_vega_lite, "~> 0.1.11"}
+])
+```
+
+* Change code - hit refresh (not great - not terrible)
+* Clone the livebook repo and run locally - looking at the logs is _very_ useful
+* Use the JS debugger
+* Make TS/JS build and bundling part of `mix compile`
+  * Just don't ship it like that! Ship with prebuilt js

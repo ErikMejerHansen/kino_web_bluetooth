@@ -1,21 +1,15 @@
 defmodule KinoWebBluetooth.Application do
-  # See https://hexdocs.pm/elixir/Application.html
-  # for more information on OTP Applications
   @moduledoc false
 
   use Application
 
   @impl true
+  @spec start(any(), any()) :: {:error, any()} | {:ok, pid()}
   def start(_type, _args) do
+    # Register the SmartCell, so that it appears in the "Smart cell" menu in the Livebook
     Kino.SmartCell.register(KinoWebBluetooth)
 
-    children = [
-      # Starts a worker by calling: KinoWebBluetooth.Worker.start_link(arg)
-      # {KinoWebBluetooth.Worker, arg}
-    ]
-
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
+    children = []
     opts = [strategy: :one_for_one, name: KinoWebBluetooth.Supervisor]
     Supervisor.start_link(children, opts)
   end

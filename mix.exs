@@ -16,19 +16,9 @@ defmodule KinoWebBluetooth.MixProject do
     [
       setup: ["deps.get", "cmd npm install --prefix js"],
       test: ["test", "cmd npm test --prefix js"],
-      # Running tsc first to avoid warning about empty "assets" folder
-      "compile.web": [esbuild_command(), tailwind_command()],
-      "compile.web.watch.ts": esbuild_command() <> " --watch",
-      "compile.web.watch.css": tailwind_command() <> " --watch"
+      compile: ["compile"],
+      "compile.web": ["cmd npm run build --prefix js"]
     ]
-  end
-
-  defp esbuild_command do
-    "cmd --cd js npx esbuild src/main.ts* --outfile=../assets/main.js --bundle --format=esm"
-  end
-
-  defp tailwind_command do
-    "cmd --cd js npx tailwindcss -i ./src/main.css -o ../assets/main.css"
   end
 
   # Run "mix help compile.app" to learn about applications.
@@ -43,8 +33,6 @@ defmodule KinoWebBluetooth.MixProject do
   defp deps do
     [
       {:kino, "~> 0.13.2"}
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
     ]
   end
 end
