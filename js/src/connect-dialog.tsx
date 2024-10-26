@@ -1,0 +1,1 @@
+export const ConnectDialog = () => <h1 className="text-3xl font-bold underline">Hello! Now with tailwind?</h1>
