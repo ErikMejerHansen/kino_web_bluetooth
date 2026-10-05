@@ -92,6 +92,24 @@ mix deps.get
 mix test
 ```
 
+### Spec
+
+The requirements are in [spec/kino_web_bluetooth.spec.md](spec/kino_web_bluetooth.spec.md),
+each with an ID such as `UI-4`. Tests declare the requirements they
+verify with a tag:
+
+```elixir
+@tag spec: "UI-4"
+test "shows when the device disconnects" do
+```
+
+Requirements that tests can't fully cover are reviewed by hand and
+recorded in [spec/reviews.exs](spec/reviews.exs).
+
+`mix spec` runs the tests and writes [spec/STATUS.md](spec/STATUS.md),
+which lists each requirement as tested, reviewed, failing or open.
+Commit it together with spec and code changes.
+
 ## License
 
 MIT, see [LICENSE](LICENSE).

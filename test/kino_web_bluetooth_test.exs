@@ -2,6 +2,8 @@ defmodule KinoWebBluetoothTest do
   use KinoWebBluetooth.BluetoothCase, async: true
 
   describe "a device that is not connected" do
+    @describetag spec: "API-1"
+
     test "reports that it is disconnected" do
       %{device: device} = given_a_device()
 
@@ -33,6 +35,8 @@ defmodule KinoWebBluetoothTest do
   end
 
   describe "a device without a Smart Cell" do
+    @describetag spec: "API-1"
+
     test "is not found" do
       device = KinoWebBluetooth.device("ble-unknown")
 
@@ -42,6 +46,8 @@ defmodule KinoWebBluetoothTest do
   end
 
   describe "a connected device" do
+    @describetag spec: "API-1"
+
     test "lists its services and characteristics" do
       %{device: device} = given_a_connected_device()
 
@@ -90,6 +96,8 @@ defmodule KinoWebBluetoothTest do
   end
 
   describe "reading a characteristic" do
+    @describetag spec: "API-4"
+
     test "returns the value from the device" do
       %{device: device} = given_a_connected_device(read: {:ok, <<87>>})
       battery = KinoWebBluetooth.characteristic!(device, "battery_level")
@@ -136,6 +144,8 @@ defmodule KinoWebBluetoothTest do
   end
 
   describe "writing a characteristic" do
+    @describetag spec: "API-3"
+
     test "sends the value and waits for the device to acknowledge it" do
       %{device: device} = given_a_connected_device()
       control_point = KinoWebBluetooth.characteristic!(device, "heart_rate_control_point")
@@ -209,6 +219,8 @@ defmodule KinoWebBluetoothTest do
   end
 
   describe "subscribing to a characteristic" do
+    @describetag spec: "API-2"
+
     test "starts notifications on the device" do
       %{device: device} = given_a_connected_device()
       measurement = KinoWebBluetooth.characteristic!(device, "heart_rate_measurement")
@@ -291,6 +303,8 @@ defmodule KinoWebBluetoothTest do
   end
 
   describe "streaming a characteristic" do
+    @describetag spec: "API-2"
+
     test "emits notified values until the device disconnects" do
       %{device: device} = given_a_connected_device()
       tx = KinoWebBluetooth.characteristic!(device, uart(), uart_tx())

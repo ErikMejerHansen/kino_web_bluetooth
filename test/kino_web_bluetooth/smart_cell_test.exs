@@ -33,6 +33,7 @@ defmodule KinoWebBluetooth.SmartCellTest do
       assert source =~ ~r/^device\d* = KinoWebBluetooth.device\("ble-[\w-]+"\)$/
     end
 
+    @tag spec: "UI-4"
     test "shows a disconnected device" do
       {kino, _source} = start_smart_cell!(SmartCell, %{})
 
@@ -41,6 +42,7 @@ defmodule KinoWebBluetooth.SmartCellTest do
   end
 
   describe "a saved cell" do
+    @tag spec: "UI-10"
     test "restores the user input" do
       attrs = %{
         "device_id" => "ble-saved",
@@ -57,6 +59,7 @@ defmodule KinoWebBluetooth.SmartCellTest do
   end
 
   describe "editing the fields" do
+    @tag spec: ["UI-1", "UI-10"]
     test "persists the service UUID" do
       {kino, _source} = start_smart_cell!(SmartCell, %{})
 
@@ -66,6 +69,7 @@ defmodule KinoWebBluetooth.SmartCellTest do
       assert_broadcast_event(kino, "fields", %{service_uuid: "heart_rate"})
     end
 
+    @tag spec: "UI-10"
     test "renames the variable in the generated code" do
       {kino, _source} = start_smart_cell!(SmartCell, %{"device_id" => "ble-rename"})
 
@@ -78,6 +82,7 @@ defmodule KinoWebBluetooth.SmartCellTest do
       )
     end
 
+    @tag spec: "UI-10"
     test "rejects invalid variable names" do
       {kino, _source} = start_smart_cell!(SmartCell, %{"variable" => "device"})
 
@@ -88,6 +93,7 @@ defmodule KinoWebBluetooth.SmartCellTest do
   end
 
   describe "connecting in the browser" do
+    @tag spec: ["UI-4", "UI-5", "UI-6"]
     test "shows the services and characteristics of the device" do
       {_kino, _source, view} = given_a_connected_cell()
 
@@ -106,6 +112,7 @@ defmodule KinoWebBluetooth.SmartCellTest do
              ] = characteristics
     end
 
+    @tag spec: "API-1"
     test "makes the device available to code" do
       {_kino, source, _view} = given_a_connected_cell()
 
@@ -115,6 +122,7 @@ defmodule KinoWebBluetooth.SmartCellTest do
       assert {:ok, _} = KinoWebBluetooth.characteristic(device, "heart_rate_measurement")
     end
 
+    @tag spec: "UI-4"
     test "shows errors reported by the browser" do
       {kino, _source} = start_smart_cell!(SmartCell, %{})
       connect(kino)
@@ -129,6 +137,7 @@ defmodule KinoWebBluetooth.SmartCellTest do
       })
     end
 
+    @tag spec: "UI-4"
     test "shows when the device disconnects" do
       {kino, _source, _view} = given_a_connected_cell()
 
@@ -139,6 +148,7 @@ defmodule KinoWebBluetooth.SmartCellTest do
   end
 
   describe "using the API" do
+    @tag spec: ["API-4", "UI-6"]
     test "forwards operations to the browser and shows the result" do
       {kino, source, _view} = given_a_connected_cell()
       location = KinoWebBluetooth.characteristic!(evaluate(source), "body_sensor_location")
@@ -152,6 +162,7 @@ defmodule KinoWebBluetooth.SmartCellTest do
       assert_broadcast_event(kino, "characteristic", %{key: _, value_hex: "01"})
     end
 
+    @tag spec: "API-1"
     test "can disconnect the device" do
       {kino, source, _view} = given_a_connected_cell()
 
@@ -163,6 +174,7 @@ defmodule KinoWebBluetooth.SmartCellTest do
   end
 
   describe "using the UI" do
+    @tag spec: "UI-8"
     test "reads a characteristic" do
       {kino, _source, _view} = given_a_connected_cell()
 
@@ -177,6 +189,7 @@ defmodule KinoWebBluetooth.SmartCellTest do
       })
     end
 
+    @tag spec: ["UI-9", "UI-10"]
     test "writes and persists the entered value" do
       {kino, _source, _view} = given_a_connected_cell()
       write = %{"value" => "01 ff", "format" => "hex"}
@@ -188,6 +201,7 @@ defmodule KinoWebBluetooth.SmartCellTest do
       assert_send_event(kino, "request", %{op: "write", value: [1, 255]})
     end
 
+    @tag spec: "UI-9"
     test "shows invalid input instead of writing it" do
       {kino, _source, _view} = given_a_connected_cell()
 
@@ -203,6 +217,7 @@ defmodule KinoWebBluetooth.SmartCellTest do
       refute_receive {:event, "request", _, _}
     end
 
+    @tag spec: "UI-7"
     test "subscribes and shows notified values" do
       {kino, _source, _view} = given_a_connected_cell()
 

@@ -13,9 +13,14 @@ defmodule KinoWebBluetooth.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      aliases: aliases(),
       docs: docs(),
       package: package()
     ]
+  end
+
+  def cli do
+    [preferred_envs: [spec: :test]]
   end
 
   def application do
@@ -32,6 +37,13 @@ defmodule KinoWebBluetooth.MixProject do
     [
       {:kino, "~> 0.13"},
       {:ex_doc, "~> 0.34", only: :dev, runtime: false}
+    ]
+  end
+
+  defp aliases do
+    [
+      # Runs the tests and writes spec/STATUS.md
+      spec: ["test --formatter ExUnit.CLIFormatter --formatter KinoWebBluetooth.SpecFormatter"]
     ]
   end
 
