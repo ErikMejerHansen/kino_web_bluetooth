@@ -86,6 +86,7 @@ Run `mix spec` to see which requirements are implemented, in
 - [UI-9] The KinoWebBluetooth UI shall show UI to allow writing to a WRITE characteristic
 - [UI-10] The KinoWebBluetooth UI shall persist user input as part of the Livebook
 - [UI-11] The KinoWebBluetooth UI shall match the UX/UI of the official Kino Smart Cells
+- [UI-12] The KinoWebBluetooth UI shall show the messages received over characteristics
 
 ## Programmatic API
 - [API-1] The KinoWebBluetooth API shall have the same functionality as the UI except where the browser requires direct user input
