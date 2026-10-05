@@ -58,14 +58,14 @@ Run `mix spec` to see which requirements are implemented, in
 
 # Spec
 
-## Architechture
+## Architecture
 - [ARCH-1] The hex package name for this KinoSmartCell shall be kino_web_bluetooth
 - [ARCH-2] The top level namespace for this project shall be KinoWebBluetooth
 
 - [ARCH-3] The KinoWebBluetooth shall have a UI for use in a Livebook
-- [ARCH-4] The KinoWebBluetooth shall have a programatic API
+- [ARCH-4] The KinoWebBluetooth shall have a programmatic API
 
-- [ARCH-5] The KinoWebBluetooth shall have a Genserver per characteristic
+- [ARCH-5] The KinoWebBluetooth shall have a GenServer per characteristic
 - [ARCH-6] The KinoWebBluetooth shall keep state in Elixir except where strictly needed
 
 ## Documentation
@@ -75,20 +75,20 @@ Run `mix spec` to see which requirements are implemented, in
 - [TEST-1] The KinoWebBluetooth shall have easy to read tests in a BDD style
 
 ## UI
-- [UI-1] The KinoWebBluetooth UI shall show a input fueld that allows entering a BLE GATT Service UUID
+- [UI-1] The KinoWebBluetooth UI shall show an input field that allows entering a BLE GATT Service UUID
 - [UI-2] The KinoWebBluetooth UI shall show a button that triggers browser BLE device Selector
-- [UI-3] The KinoWebBluetooth UI shall pass the user provided service UUID to the browsers BLE functionality
+- [UI-3] The KinoWebBluetooth UI shall pass the user provided service UUID to the browser's BLE functionality
 - [UI-4] The KinoWebBluetooth UI shall show if a BLE device is connected
 - [UI-5] The KinoWebBluetooth UI shall show information of the services on the connected device
 - [UI-6] The KinoWebBluetooth UI shall show information about the characteristics of the services
 - [UI-7] The KinoWebBluetooth UI shall show buttons that allow connecting to NOTIFY characteristics
-- [UI-8] The KinoWebBluetooth UI shall show buttons that allow reading a value from a READ characterisctic
-- [UI-9] The KinoWebBluetooth UI shall shall show UI to allow writing to a WRITE characteristic
+- [UI-8] The KinoWebBluetooth UI shall show buttons that allow reading a value from a READ characteristic
+- [UI-9] The KinoWebBluetooth UI shall show UI to allow writing to a WRITE characteristic
 - [UI-10] The KinoWebBluetooth UI shall persist user input as part of the Livebook
 - [UI-11] The KinoWebBluetooth UI shall match the UX/UI of the official Kino Smart Cells
 
-## Programatic API
-- [API-1] The KinoWebBluetooth API shall have the same functionality as the UI execept where browser requires direct user input
-- [API-2] The KinoWebBluetooth API shall allow subscribing to async messages from Genservers representing NOTIFY characteristic
-- [API-3] The KinoWebBluetooth API shall allow sync and async write to GenServers representing a WRITE characteristic
-- [API-4] The KinoWebBluetooth API shall have sync functionality to read from Genservers representing a READ characteristic
+## Programmatic API
+- [API-1] The KinoWebBluetooth API shall have the same functionality as the UI except where the browser requires direct user input
+- [API-2] The KinoWebBluetooth API shall allow subscribing to async messages from GenServers representing NOTIFY characteristics
+- [API-3] The KinoWebBluetooth API shall allow sync and async write to GenServers representing WRITE characteristics
+- [API-4] The KinoWebBluetooth API shall have sync functionality to read from GenServers representing READ characteristics

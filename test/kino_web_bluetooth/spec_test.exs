@@ -7,7 +7,7 @@ defmodule KinoWebBluetooth.SpecTest do
     test "has requirements with unique IDs" do
       requirements = Spec.requirements()
 
-      assert %{id: "ARCH-1", section: "Architechture"} = hd(requirements)
+      assert %{id: "ARCH-1", section: "Architecture"} = hd(requirements)
       assert Enum.all?(requirements, &(&1.text =~ "shall"))
     end
 

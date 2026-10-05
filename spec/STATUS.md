@@ -13,15 +13,15 @@ Implementation status of [the spec](kino_web_bluetooth.spec.md):
 * ❌ **Failing**: some of its tests fail
 * ⬜ **Open**: neither tested nor reviewed
 
-## Architechture
+## Architecture
 
 | ID | Requirement | Status | Evidence |
 | --- | --- | --- | --- |
 | ARCH-1 | The hex package name for this KinoSmartCell shall be kino_web_bluetooth | ✅ Tested | 1 test |
 | ARCH-2 | The top level namespace for this project shall be KinoWebBluetooth | ✅ Tested | 1 test |
 | ARCH-3 | The KinoWebBluetooth shall have a UI for use in a Livebook | ✅ Tested | 1 test |
-| ARCH-4 | The KinoWebBluetooth shall have a programatic API | ✅ Tested | 1 test |
-| ARCH-5 | The KinoWebBluetooth shall have a Genserver per characteristic | ✅ Tested | 1 test |
+| ARCH-4 | The KinoWebBluetooth shall have a programmatic API | ✅ Tested | 1 test |
+| ARCH-5 | The KinoWebBluetooth shall have a GenServer per characteristic | ✅ Tested | 1 test |
 | ARCH-6 | The KinoWebBluetooth shall keep state in Elixir except where strictly needed | 👀 Reviewed | The browser keeps only the BluetoothDevice and GATT characteristic handles (lib/assets/bluetooth_cell/main.js). Device, value, subscriber and input state live in the Device/Characteristic GenServers and the Smart Cell. |
 
 ## Documentation
@@ -40,23 +40,23 @@ Implementation status of [the spec](kino_web_bluetooth.spec.md):
 
 | ID | Requirement | Status | Evidence |
 | --- | --- | --- | --- |
-| UI-1 | The KinoWebBluetooth UI shall show a input fueld that allows entering a BLE GATT Service UUID | ✅ Tested | 1 test; Browser side: Service input in the cell header, checked in headless Chromium. |
+| UI-1 | The KinoWebBluetooth UI shall show an input field that allows entering a BLE GATT Service UUID | ✅ Tested | 1 test; Browser side: Service input in the cell header, checked in headless Chromium. |
 | UI-2 | The KinoWebBluetooth UI shall show a button that triggers browser BLE device Selector | 👀 Reviewed | Connect calls navigator.bluetooth.requestDevice. Checked in headless Chromium with a mocked navigator.bluetooth, not yet with a real device. |
-| UI-3 | The KinoWebBluetooth UI shall pass the user provided service UUID to the browsers BLE functionality | 👀 Reviewed | The service input is passed as requestDevice({filters: [{services: [uuid]}]}). Checked in headless Chromium with a mocked navigator.bluetooth. |
+| UI-3 | The KinoWebBluetooth UI shall pass the user provided service UUID to the browser's BLE functionality | 👀 Reviewed | The service input is passed as requestDevice({filters: [{services: [uuid]}]}). Checked in headless Chromium with a mocked navigator.bluetooth. |
 | UI-4 | The KinoWebBluetooth UI shall show if a BLE device is connected | ✅ Tested | 4 tests |
 | UI-5 | The KinoWebBluetooth UI shall show information of the services on the connected device | ✅ Tested | 1 test |
 | UI-6 | The KinoWebBluetooth UI shall show information about the characteristics of the services | ✅ Tested | 2 tests |
 | UI-7 | The KinoWebBluetooth UI shall show buttons that allow connecting to NOTIFY characteristics | ✅ Tested | 1 test |
-| UI-8 | The KinoWebBluetooth UI shall show buttons that allow reading a value from a READ characterisctic | ✅ Tested | 1 test |
-| UI-9 | The KinoWebBluetooth UI shall shall show UI to allow writing to a WRITE characteristic | ✅ Tested | 2 tests |
+| UI-8 | The KinoWebBluetooth UI shall show buttons that allow reading a value from a READ characteristic | ✅ Tested | 1 test |
+| UI-9 | The KinoWebBluetooth UI shall show UI to allow writing to a WRITE characteristic | ✅ Tested | 2 tests |
 | UI-10 | The KinoWebBluetooth UI shall persist user input as part of the Livebook | ✅ Tested | 5 tests |
 | UI-11 | The KinoWebBluetooth UI shall match the UX/UI of the official Kino Smart Cells | 👀 Reviewed | Header, inputs and colors follow kino_db's Smart Cells. Compared visually with screenshots, not yet inside Livebook. |
 
-## Programatic API
+## Programmatic API
 
 | ID | Requirement | Status | Evidence |
 | --- | --- | --- | --- |
-| API-1 | The KinoWebBluetooth API shall have the same functionality as the UI execept where browser requires direct user input | ✅ Tested | 11 tests; UI features and their API: connected status (connected?/1, info/1), services (services/1, characteristics/1), read (read/2), write (write/3), notify (subscribe/2, stream/1), disconnect (disconnect/1). Only picking a device needs the UI. |
-| API-2 | The KinoWebBluetooth API shall allow subscribing to async messages from Genservers representing NOTIFY characteristic | ✅ Tested | 10 tests |
-| API-3 | The KinoWebBluetooth API shall allow sync and async write to GenServers representing a WRITE characteristic | ✅ Tested | 7 tests |
-| API-4 | The KinoWebBluetooth API shall have sync functionality to read from Genservers representing a READ characteristic | ✅ Tested | 6 tests |
+| API-1 | The KinoWebBluetooth API shall have the same functionality as the UI except where the browser requires direct user input | ✅ Tested | 11 tests; UI features and their API: connected status (connected?/1, info/1), services (services/1, characteristics/1), read (read/2), write (write/3), notify (subscribe/2, stream/1), disconnect (disconnect/1). Only picking a device needs the UI. |
+| API-2 | The KinoWebBluetooth API shall allow subscribing to async messages from GenServers representing NOTIFY characteristics | ✅ Tested | 10 tests |
+| API-3 | The KinoWebBluetooth API shall allow sync and async write to GenServers representing WRITE characteristics | ✅ Tested | 7 tests |
+| API-4 | The KinoWebBluetooth API shall have sync functionality to read from GenServers representing READ characteristics | ✅ Tested | 6 tests |
