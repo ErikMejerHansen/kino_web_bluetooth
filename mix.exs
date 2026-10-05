@@ -9,7 +9,7 @@ defmodule KinoWebBluetooth.MixProject do
       app: :kino_web_bluetooth,
       version: @version,
       description: "Web Bluetooth (BLE GATT) Smart Cell and API for Livebook",
-      elixir: "~> 1.14",
+      elixir: "~> 1.15",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),

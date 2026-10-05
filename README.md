@@ -108,7 +108,8 @@ recorded in [spec/reviews.exs](spec/reviews.exs).
 
 `mix spec` runs the tests and writes [spec/STATUS.md](spec/STATUS.md),
 which lists each requirement as tested, reviewed, failing or open.
-Commit it together with spec and code changes.
+Commit it together with spec and code changes. CI fails when it is out
+of date.
 
 ## License
 
