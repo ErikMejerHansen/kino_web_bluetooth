@@ -230,6 +230,18 @@ defmodule KinoWebBluetooth.SmartCellTest do
       push_event(kino, "notification", response(nil, @measurement, %{"value" => [0, 72]}))
       assert_broadcast_event(kino, "characteristic", %{value_hex: "00 48"})
     end
+
+    @tag spec: "UI-12"
+    test "lists the received messages, newest first" do
+      {kino, _source, _view} = given_a_connected_cell()
+
+      push_event(kino, "notification", response(nil, @measurement, %{"value" => [0, 72]}))
+      push_event(kino, "notification", response(nil, @measurement, %{"value" => [0, 80]}))
+
+      assert_broadcast_event(kino, "characteristic", %{
+        messages: [%{hex: "00 50"}, %{hex: "00 48"}]
+      })
+    end
   end
 
   defp given_a_connected_cell do

@@ -13,6 +13,14 @@ defmodule KinoWebBluetooth do
       {:ok, battery} = KinoWebBluetooth.characteristic(device, "battery_level")
       {:ok, <<level>>} = KinoWebBluetooth.read(battery)
 
+  ## Services and characteristics
+
+  A device has services, and a service has characteristics. Use
+  `services/1` to walk that hierarchy. `characteristics/1` and
+  `characteristic/3` are shortcuts that look across all services, so
+  the service is optional; pass it only to tell apart characteristics
+  that share a UUID in different services.
+
   ## UUIDs
 
   Services and characteristics are identified by UUIDs. Functions
@@ -89,7 +97,11 @@ defmodule KinoWebBluetooth do
   end
 
   @doc """
-  Lists all characteristics of the connected device.
+  Lists all characteristics of the connected device, across all services.
+
+  A device has services and a service has characteristics. This is a
+  shortcut that flattens that hierarchy; each characteristic still knows
+  its `service`. Use `services/1` to keep the hierarchy.
   """
   @spec characteristics(Device.t()) :: [Characteristic.t()]
   def characteristics(%Device{} = device) do
@@ -98,6 +110,11 @@ defmodule KinoWebBluetooth do
 
   @doc """
   Finds a characteristic by UUID, optionally within the given service.
+
+  The hierarchy is device, services, characteristics, but the service is
+  optional here since characteristic UUIDs are usually unique on a device.
+  Pass the service to tell apart characteristics that share a UUID across
+  services.
 
       {:ok, char} = KinoWebBluetooth.characteristic(device, 0x2A37)
       {:ok, char} = KinoWebBluetooth.characteristic(device, "heart_rate", "heart_rate_measurement")

@@ -21,6 +21,9 @@ defmodule KinoWebBluetooth.SmartCell do
 
   alias KinoWebBluetooth.{Characteristic, Device, UUID, Value}
 
+  # Received messages kept per characteristic, newest first
+  @max_messages 50
+
   @impl true
   def init(attrs, ctx) do
     device_id = start_device(attrs["device_id"])
@@ -170,8 +173,9 @@ defmodule KinoWebBluetooth.SmartCell do
   end
 
   def handle_event("notification", %{"value" => value} = notification, ctx) do
-    deliver(ctx, notification, {:notification, decode_value(value)})
-    {:noreply, ctx}
+    value = decode_value(value)
+    deliver(ctx, notification, {:notification, value})
+    {:noreply, log_message(ctx, notification, value)}
   end
 
   ## Messages from the Device and Characteristic servers
@@ -272,6 +276,14 @@ defmodule KinoWebBluetooth.SmartCell do
     ctx
   end
 
+  defp log_message(ctx, %{"service" => service, "characteristic" => uuid}, value) do
+    key = service <> "/" <> uuid
+    message = %{value: value, at: System.os_time(:millisecond)}
+    messages = Map.get(ctx.assigns.characteristics, key, %{})[:messages] || []
+
+    update_characteristic(ctx, key, %{messages: Enum.take([message | messages], @max_messages)})
+  end
+
   defp deliver(ctx, %{"service" => service, "characteristic" => uuid}, message) do
     Characteristic.deliver(ctx.assigns.device_id, service, uuid, message)
   end
@@ -316,6 +328,14 @@ defmodule KinoWebBluetooth.SmartCell do
       properties: char.properties,
       value_hex: value && Value.to_hex(value),
       value_text: value && Value.to_text(value),
+      messages:
+        for message <- state[:messages] || [] do
+          %{
+            at: message.at,
+            hex: Value.to_hex(message.value),
+            text: Value.to_text(message.value)
+          }
+        end,
       error: state[:error],
       notifying: state[:notifying] || false,
       ui_subscribed: state[:ui_subscribed] || false,
