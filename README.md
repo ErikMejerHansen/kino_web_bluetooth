@@ -94,7 +94,7 @@ mix test
 
 ### Spec
 
-The requirements are in [spec/kino_web_bluetooth.spec.md](spec/kino_web_bluetooth.spec.md),
+The requirements are in [spec/kino_web_bluetooth.spec.md](https://github.com/ErikMejerHansen/kino_web_bluetooth/blob/main/spec/kino_web_bluetooth.spec.md),
 each with an ID such as `UI-4`. Tests declare the requirements they
 verify with a tag:
 
@@ -104,13 +104,22 @@ test "shows when the device disconnects" do
 ```
 
 Requirements that tests can't fully cover are reviewed by hand and
-recorded in [spec/reviews.exs](spec/reviews.exs).
+recorded in [spec/reviews.exs](https://github.com/ErikMejerHansen/kino_web_bluetooth/blob/main/spec/reviews.exs).
 
-`mix spec` runs the tests and writes [spec/STATUS.md](spec/STATUS.md),
+`mix spec` runs the tests and writes [spec/STATUS.md](https://github.com/ErikMejerHansen/kino_web_bluetooth/blob/main/spec/STATUS.md),
 which lists each requirement as tested, reviewed, failing or open.
 Commit it together with spec and code changes. CI fails when it is out
 of date.
 
+### Releasing
+
+1. Bump `@version` in `mix.exs` and merge to `main`.
+2. In GitHub, run **Actions → Publish to Hex** on `main` with that
+   version. Tick *Dry run* first to check the package without publishing.
+
+The workflow runs all checks, publishes the package and docs to Hex,
+and tags the release `vX.Y.Z`. It needs a `HEX_API_KEY` secret.
+
 ## License
 
-MIT, see [LICENSE](LICENSE).
+MIT, see [LICENSE](https://github.com/ErikMejerHansen/kino_web_bluetooth/blob/main/LICENSE).
