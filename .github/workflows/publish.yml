@@ -2,7 +2,7 @@ name: Publish to Hex
 
 # Manually triggered: Actions → "Publish to Hex" → Run workflow.
 #
-# Needs a HEX_API_KEY secret, created with
+# Needs a HEX_API_KEY secret, also for dry runs, created with
 # `mix hex.user key generate --key-name github-actions --permission api:write`.
 
 on:
@@ -53,6 +53,13 @@ jobs:
             exit 1
           fi
 
+          if [ -z "$HEX_API_KEY" ]; then
+            echo "::error::The HEX_API_KEY secret is not set. Add it to the repository or the hex environment."
+            exit 1
+          fi
+        env:
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+
       - uses: erlef/setup-beam@v1
         with:
           elixir-version: "1.18"
@@ -79,9 +86,12 @@ jobs:
       - name: Check docs
         run: mix docs --warnings-as-errors
 
+      # Hex looks up the user even in a dry run, so this also checks the key
       - name: Check package (dry run)
         if: inputs.dry_run
         run: mix hex.publish --dry-run --yes
+        env:
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
 
       - name: Publish package and docs
         if: ${{ !inputs.dry_run }}
