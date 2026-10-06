@@ -118,7 +118,8 @@ of date.
    version. Tick *Dry run* first to check the package without publishing.
 
 The workflow runs all checks, publishes the package and docs to Hex,
-and tags the release `vX.Y.Z`. It needs a `HEX_API_KEY` secret.
+and tags the release `vX.Y.Z`. It needs a `HEX_API_KEY` secret, also
+for dry runs.
 
 ## License
 
